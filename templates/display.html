@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="Pengyong Zhan">
+    <meta name="email" content="zhan0789@algonquinlive.com">
+    <title>Score system</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    {% extends "template.html" %}
+    {% block content %}
+
+    <main>
+        <h2>Table 1: Final Weighted AVG Grade Converted to Letter Grade</h2>
+        <p>Default Weights: Assignments: 40%, Midterms: 35%, Final: 25%</p>
+        <table border = 1>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Course</th>
+                <th>Letter Grade</th>
+            </tr>
+
+			{% for el in allRecSum %}
+            <tr>
+			    <td> {{ el[0] }} </td>
+                <td> {{ el[1] }} </td>
+                <td> {{ el[2] }} </td>
+                <td> {{ el[3] }} </td>
+			</tr>
+			{% endfor %}
+		</table>
+
+        <br>
+
+        <h2>Table 2: All Records</h2>
+        <table border = 1>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Course</th>
+                <th>Work Type</th>
+                <th>Grade</th>
+                <th>Grade Processed</th>
+                <th>Letter Grade</th>
+            </tr>
+            <tr>
+			{% for el in allRecDetail %}
+                <td> {{ el[0] }} </td>
+                <td> {{ el[1] }} </td>
+                <td> {{ el[2] }} </td>
+                <td> {{ el[3] }} </td>
+                <td> {{ el[4] }} </td>
+                <td> {{ el[5] }} </td>
+                <td> {{ el[6] }} </td>
+                <td> {{ el[7] }} </td>
+			</tr>
+			{% endfor %}
+		</table>
+
+    <a id = "addStudent" href="{{ url_for('index') }}">Add Another Student</a>
+    </main>
+	
+	{% endblock %}
+</body>
+</html>
