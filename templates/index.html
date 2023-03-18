@@ -6,7 +6,7 @@
     <meta name="author" content="Pengyong Zhan">
     <meta name="email" content="zhan0789@algonquinlive.com">
     <title>Score Form</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='scripts/validate.js') }}" defer></script>
 </head>
 <body>
@@ -14,7 +14,7 @@
     {% block content %}
 
     <main>
-        <form action="http://localhost:5000/display" method="post" name="scoreForm">
+        <form action="display" method="post" name="scoreForm">
             <div>
                 <label for="fName">First Name:</label>
                 <input type="text" id="fName" name="fName" placeholder="first name">
