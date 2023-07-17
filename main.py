@@ -19,20 +19,15 @@ def index():
     return render_template("index.html", allCourseList = allCourseList, allWorkTypeList = allWorkTypeList)
 
 
-@app.route("/display")
-def display():
-    conn = sqlite3.connect("score")
-    c = conn.cursor()
-    c.execute('''
+finalLetterGrade = '''
                       SELECT id, fName, lName, course, work_type, grade, grade_processed, 
                       case when grade_processed >= 80 then 'A' when grade_processed >= 70 then 'B'
                       when grade_processed >= 60 then 'C' when grade_processed >= 50 then 'D' 
                       else 'F' end as 'letter_grade'
                       FROM scores
-                      ''')
-    allRecDetail = c.fetchall()
+                      '''
 
-    c.execute('''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
+gradeDetails = '''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
                       when grade_weighted_avg >= 60 then 'C' when grade_weighted_avg >= 50 then 'D' 
                       else 'F' end as 'letter_grade' 
                 from (
@@ -45,7 +40,17 @@ def display():
                           ) t
                     group by fName, lName, course
                     ) t1
-                      ''')
+                      '''
+                      
+                      
+@app.route("/display")
+def display():
+    conn = sqlite3.connect("score")
+    c = conn.cursor()
+    c.execute(finalLetterGrade)
+    allRecDetail = c.fetchall()
+
+    c.execute(gradeDetails)
     allRecSum = c.fetchall()
 
     conn.close()
@@ -77,29 +82,10 @@ def inputAndDisplay():
         conn.commit()
 
         ###############################################################
-        c.execute('''
-                          SELECT id, fName, lName, course, work_type, grade, grade_processed, 
-                          case when grade_processed >= 80 then 'A' when grade_processed >= 70 then 'B'
-                          when grade_processed >= 60 then 'C' when grade_processed >= 50 then 'D' 
-                          else 'F' end as 'letter_grade'
-                          FROM scores
-                          ''')
+        c.execute(finalLetterGrade)
         allRecDetail = c.fetchall()
 
-        c.execute('''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
-                          when grade_weighted_avg >= 60 then 'C' when grade_weighted_avg >= 50 then 'D' 
-                          else 'F' end as 'letter_grade' 
-                    from (
-                        SELECT fName, lName, course, round(sum(weight*grade_processed), 1) as grade_weighted_avg
-                        from (
-                              SELECT id, fName, lName, course, case when work_type = "Assignments" then 0.4
-                              when work_type = "Midterms" then 0.35 
-                              when work_type = "Final" then 0.25 else '' end as 'weight', grade_processed
-                              FROM scores
-                              ) t
-                        group by fName, lName, course
-                        ) t1
-                          ''')
+        c.execute(gradeDetails)
         allRecSum = c.fetchall()
 
         conn.close()
