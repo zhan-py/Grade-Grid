@@ -19,7 +19,7 @@ def index():
     return render_template("index.html", allCourseList = allCourseList, allWorkTypeList = allWorkTypeList)
 
 
-finalLetterGrade = '''
+gradeDetails = '''
                       SELECT id, fName, lName, course, work_type, grade, grade_processed, 
                       case when grade_processed >= 80 then 'A' when grade_processed >= 70 then 'B'
                       when grade_processed >= 60 then 'C' when grade_processed >= 50 then 'D' 
@@ -27,19 +27,39 @@ finalLetterGrade = '''
                       FROM scores
                       '''
 
-gradeDetails = '''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
+
+t = '''
+                    
+                        select fName || lName || course from (
+                          SELECT fName, lName, course, length(GROUP_CONCAT(work_type)) as 'work_type_len'
+                          FROM scores                      
+                          group by fName, lName, course    
+                          having work_type_len = 26                        
+                        ) T
+
+                      '''
+
+finalLetterGrade = '''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
                       when grade_weighted_avg >= 60 then 'C' when grade_weighted_avg >= 50 then 'D' 
                       else 'F' end as 'letter_grade' 
-                from (
-                    SELECT fName, lName, course, round(sum(weight*grade_processed), 1) as grade_weighted_avg
-                    from (
-                          SELECT id, fName, lName, course, case when work_type = "Assignments" then 0.4
-                          when work_type = "Midterms" then 0.35 
-                          when work_type = "Final" then 0.25 else '' end as 'weight', grade_processed
-                          FROM scores
-                          ) t
-                    group by fName, lName, course
-                    ) t1
+                      from (
+                          SELECT fName, lName, course, round(sum(weight*grade_processed), 1) as grade_weighted_avg
+                          from (
+                                SELECT id, fName, lName, course, case when work_type = "Assignments" then 0.4
+                                when work_type = "Midterms" then 0.35 
+                                when work_type = "Final" then 0.25 else '' end as 'weight', grade_processed
+                                FROM scores
+                                ) t
+                          group by fName, lName, course
+                      ) t1
+                      where fName || lName || course in (
+                        select fName || lName || course from (
+                                SELECT fName, lName, course, length(GROUP_CONCAT(work_type)) as 'work_type_len'
+                                FROM scores                      
+                                group by fName, lName, course    
+                                having work_type_len = 26                        
+                              ) T
+                      )
                       '''
                       
                       
@@ -47,10 +67,10 @@ gradeDetails = '''select fName, lName, course, case when grade_weighted_avg >= 8
 def display():
     conn = sqlite3.connect("score")
     c = conn.cursor()
-    c.execute(finalLetterGrade)
+    c.execute(gradeDetails)
     allRecDetail = c.fetchall()
 
-    c.execute(gradeDetails)
+    c.execute(finalLetterGrade)
     allRecSum = c.fetchall()
 
     conn.close()
@@ -82,10 +102,10 @@ def inputAndDisplay():
         conn.commit()
 
         ###############################################################
-        c.execute(finalLetterGrade)
+        c.execute(gradeDetails)
         allRecDetail = c.fetchall()
 
-        c.execute(gradeDetails)
+        c.execute(finalLetterGrade)
         allRecSum = c.fetchall()
 
         conn.close()
