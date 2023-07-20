@@ -28,17 +28,6 @@ gradeDetails = '''
                       '''
 
 
-t = '''
-                    
-                        select fName || lName || course from (
-                          SELECT fName, lName, course, length(GROUP_CONCAT(work_type)) as 'work_type_len'
-                          FROM scores                      
-                          group by fName, lName, course    
-                          having work_type_len = 26                        
-                        ) T
-
-                      '''
-
 finalLetterGrade = '''select fName, lName, course, case when grade_weighted_avg >= 80 then 'A' when grade_weighted_avg >= 70 then 'B'
                       when grade_weighted_avg >= 60 then 'C' when grade_weighted_avg >= 50 then 'D' 
                       else 'F' end as 'letter_grade' 
